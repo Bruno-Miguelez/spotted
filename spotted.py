@@ -16,4 +16,4 @@ for message in messages:
             api.destroy_direct_message(message.id)
 else:
         print ("nada bro")
-        time.sleep(300)
+        time.sleep(60)
