@@ -25,3 +25,5 @@ essencialmente esse é o código.
         time.sleep(60)
         
 Esse é um recorte, tem umas enrrolações antes, você pode conferir essa versão completa [clicando aqui](https://github.com/apatacadof/spotted/blob/main/spotted.py)
+
+bora destrinchar isso aí
