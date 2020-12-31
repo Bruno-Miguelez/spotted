@@ -14,7 +14,7 @@ auth = tweepy.OAuthHandler()
 auth.set_access_token()
 
 api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True) #estabelece limite de tempo entre requests
-messages = api.list_direct_messages() #defini 
+messages = api.list_direct_messages() #defini mensagem
 
 
 for message in messages: #abre um loop, algo do tipo "se receber uma mensagem"
