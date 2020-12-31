@@ -2,7 +2,7 @@
 programa: spotted_do_tt
 linguagem: python v3.8
 autor: @Bruno_Miguelez_
-versão: 1.2
+versão: v1.2
 '''
 
 #importar as bibilhotecas necessarias para o projeto
