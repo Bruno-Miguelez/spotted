@@ -3,4 +3,4 @@
 </h1>
 <p align="center">portal oficial do fogo no cu</p>
 
-<img src="https://img.shields.io/static/v1?label=pyhon&message=v3.8&color=sucess&style=flat&logo=ghost"/>
+<img src="https://img.shields.io/static/v1?label=pyhon&message=v3.8&color=sucess&style=flat"/>
