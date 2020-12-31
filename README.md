@@ -11,12 +11,11 @@
 
 entenda o código: linha por linha
 '''
-'''
-programa: spotted_do_tt
-linguagem: python v3.8
-autor: @Bruno_Miguelez_
-versão: v1.2
-'''
+#programa: spotted_do_tt
+#linguagem: python v3.8
+#autor: @Bruno_Miguelez_
+#versão: v1.2
+
 
 #importar as bibilhotecas necessarias para o projeto
 import tweepy #bibilhoteca não nativa, precisa digitar o comando 'pip install tweepy' no terminal para baixar
