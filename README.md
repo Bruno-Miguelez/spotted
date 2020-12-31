@@ -3,7 +3,7 @@
 </h1>
 <p align="center">portal oficial do fogo no cu</p>
 
-<img src="https://img.shields.io/static/v1?label=project%20version&message=v1.5&color=sucess&style=for-the-badge"/>
+![](https://img.shields.io/static/v1?label=project%20version&message=v1.5&color=sucess&style=for-the-badge)
 <img src="http://ForTheBadge.com/images/badges/made-with-python.svg"/(https://www.python.org/)>
 <img src="https://img.shields.io/static/v1?label=pyhon&message=2.7|3.5|3.6|3.7|3.8&color=informational&style=for-the-badge"/>
 <img src="https://badges.frapsoft.com/os/v3/open-source.svg?v=103"/>
