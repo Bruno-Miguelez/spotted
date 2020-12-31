@@ -10,6 +10,7 @@
 [![](https://img.shields.io/static/v1?label=status&message=beta&color=yellowgreen&style=for-the-badge)](https://github.com/apatacadof/spotted/blob/main/spotted.py)
 
 <b>#entenda o código: linha por linha<b>
+ 
     '''
     programa: spotted_do_tt
     linguagem: python v3.8
