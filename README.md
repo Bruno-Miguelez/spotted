@@ -9,19 +9,19 @@
 [![](https://img.shields.io/static/v1?label=pyhon&message=2.7|3.5|3.6|3.7|3.8&logo=python&color=informational&style=for-the-badge)](https://www.python.org/)
 [![](https://img.shields.io/static/v1?label=status&message=beta&color=yellowgreen&style=for-the-badge)](https://github.com/apatacadof/spotted/blob/main/spotted.py)
 
-entenda o código: linha por linha
+#entenda o código: linha por linha
 '''
-#programa: spotted_do_tt
-#linguagem: python v3.8
-#autor: @Bruno_Miguelez_
-#versão: v1.2
+programa: spotted_do_tt
+linguagem: python v3.8
+autor: @Bruno_Miguelez_
+versão: v1.2
 
 
-#importar as bibilhotecas necessarias para o projeto
+importar as bibilhotecas necessarias para o projeto
 import tweepy #bibilhoteca não nativa, precisa digitar o comando 'pip install tweepy' no terminal para baixar
 import time 
 
-#logar pela api do twitter
+logar pela api do twitter
 auth = tweepy.OAuthHandler()
 auth.set_access_token()
 
