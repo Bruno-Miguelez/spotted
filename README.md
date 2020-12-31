@@ -9,7 +9,7 @@
 [![](https://img.shields.io/static/v1?label=pyhon&message=2.7|3.5|3.6|3.7|3.8&logo=python&color=informational&style=for-the-badge)](https://www.python.org/)
 [![](https://img.shields.io/static/v1?label=status&message=beta&color=yellowgreen&style=for-the-badge)](https://github.com/apatacadof/spotted/blob/main/spotted.py)
 
-###entenda o código: linha por linha
+### entenda o código: linha por linha
 
 essencialmente esse é o código.
     
@@ -24,4 +24,4 @@ essencialmente esse é o código.
         print ("nada bro")
         time.sleep(60)
         
-Esse é um recorte do código, tem umas enrrolações antes, você pode conferir essa versão completa <a href=“https://github.com/apatacadof/spotted/blob/main/spotted.py“>clicando aqui</a>
+Esse é um recorte, tem umas enrrolações antes, você pode conferir essa versão completa [clicando aqui](https://github.com/apatacadof/spotted/blob/main/spotted.py)
