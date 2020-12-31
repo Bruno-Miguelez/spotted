@@ -1,6 +1,6 @@
 '''
 programa: spotted_do_tt
-linguagem: python
+linguagem: python v3.8
 autor: @Bruno_Miguelez_
 versão: 1.2
 '''
