@@ -7,4 +7,4 @@
 <img src="http://ForTheBadge.com/images/badges/made-with-python.svg"/>
 <img src="https://img.shields.io/static/v1?label=pyhon&message=v3.8&color=sucess&style=flat"/>
 <img src="https://badges.frapsoft.com/os/v3/open-source.svg?v=103"/>
-<img src="https://img.shields.io/discord/:794297088790888450.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge"(https://discord.gg/xdKJgxaTdp)/>
+<img src="https://img.shields.io/discord/:794297088246153246.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge"(https://discord.gg/xdKJgxaTdp)/>
