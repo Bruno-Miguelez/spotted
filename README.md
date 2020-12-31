@@ -7,4 +7,6 @@
 [![](https://img.shields.io/static/v1?label=project%20version&message=v1.5&color=sucess&style=for-the-badge)](https://github.com/apatacadof/spotted/blob/main/spotted.py)
 [![](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/apatacadof/spotted/7a1142bd2d2aef7e32b69a8038080377b415d953/LICENSE)
 [![](https://img.shields.io/static/v1?label=pyhon&message=2.7|3.5|3.6|3.7|3.8&color=informational&style=for-the-badge)](https://www.python.org/)
-[![](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+[![](https://img.shields.io/static/v1?label=status&message=beta&color=yellowgreen&style=for-the-badge)](https://github.com/apatacadof/spotted/blob/main/spotted.py)
+
+entenda o código:
