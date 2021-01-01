@@ -11,6 +11,7 @@
 [![](https://img.shields.io/uptimerobot/status/m786806468-a734c9b76f9e14caac6270ec?style=for-the-badge)]()
 [![](https://img.shields.io/uptimerobot/ratio/7/m786806468-a734c9b76f9e14caac6270ec?label=UPTIME%207%20last%207%20days&style=for-the-badge]()
 [![](https://img.shields.io/uptimerobot/ratio/m786806468-a734c9b76f9e14caac6270ec?label=uptime%20last%2030%20days&style=for-the-badge]()
+
 ### entenda o código: linha por linha
 
 essencialmente esse é o código.
