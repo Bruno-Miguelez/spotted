@@ -12,21 +12,27 @@
 [![](https://img.shields.io/uptimerobot/ratio/7/m786806468-a734c9b76f9e14caac6270ec?style=for-the-badge)]()
 [![](https://img.shields.io/uptimerobot/ratio/m786806468-a734c9b76f9e14caac6270ec?label=uptime%20last%2030%20days&style=for-the-badge)]()
 
-### entenda o código: linha por linha
 
-essencialmente esse é o código.
-    
-    for message in messages:
-        try:
-            text = message.message_create["message_data"]["text"]
-            api.update_status(f'spotted: {text}')
-            api.destroy_direct_message(message.id)
-        except tweepy.TweepError as e:
-            print(e.reason)
-    else:
-        print ("nada bro")
-        time.sleep(60)
-        
-Esse é um recorte, tem umas enrrolações antes, você pode conferir essa versão completa [clicando aqui](https://github.com/apatacadof/spotted/blob/main/spotted.py)
+### REGRAS E DIRETRIZES
+Posts direcionados são os mais delicados, a equipe de moderação do spotted deve pausar o processo de publicação para consulta do citado.
 
-bora destrinchar isso aí
+Postagens que descumpram as diretrizes do twitter não serão publicadas no spotted. https://help.twitter.com/pt/rules-and-policies/twitter-rules
+
+Destaca-se:
+Segurança
+Violência: não é permitido fazer ameaças de violência contra um indivíduo ou um grupo de pessoas. Também proibimos a glorificação da violência. Saiba mais sobre nossas políticas contra ameaças violentas e glorificação da violência. 
+https://help.twitter.com/pt/rules-and-policies/violent-threats-glorification
+https://help.twitter.com/pt/rules-and-policies/glorification-of-violence
+
+Conduta de propagação de ódio: também não é permitido promover violência, ameaçar ou assediar outras pessoas com base em raça, etnia, nacionalidade, casta, orientação sexual, gênero, identidade de gênero, religião, idade, deficiência ou doença grave. Saiba mais. 
+https://help.twitter.com/pt/rules-and-policies/hateful-conduct-policy
+
+Abuso/assédio: não é permitido se envolver no assédio direcionado a alguém nem incitar outras pessoas a fazer isso, inclusive desejar que alguém sofra lesões. Saiba mais.
+https://help.twitter.com/pt/rules-and-policies/abusive-behavior
+
+Suicídio ou automutilação: não é permitido promover nem incentivar o suicídio ou a automutilação. Saiba mais.
+https://help.twitter.com/pt/rules-and-policies/glorifying-self-harm
+
+Privacidade
+Informações privadas: não é permitido publicar informações privadas de outras pessoas (como número de telefone e endereço residencial) sem a permissão e a autorização expressas delas. Também é proibido ameaçar expor informações privadas ou incentivar outras pessoas a fazer isso. Saiba mais.
+https://help.twitter.com/pt/rules-and-policies/personal-information
