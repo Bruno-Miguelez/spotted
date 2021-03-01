@@ -13,7 +13,7 @@
 [![](https://img.shields.io/uptimerobot/ratio/m786806468-a734c9b76f9e14caac6270ec?label=uptime%20last%2030%20days&style=for-the-badge)]()
 
 
-### REGRAS E DIRETRIZES
+### CÓDIGO SPOTTED COMENTADO V2.1
 ```
 '''
 programa: spotted_do_tt v2.1 - estável
@@ -155,6 +155,7 @@ client.run(os.getenv('token'))
 
 #FECHOU O CODIGO, FML
 ```
+### REGRAS E DIRETRIZES
 Posts direcionados são os mais delicados, a equipe de moderação do spotted deve pausar o processo de publicação para consulta do citado.
 
 Postagens que descumpram as diretrizes do twitter não serão publicadas no spotted. https://help.twitter.com/pt/rules-and-policies/twitter-rules
