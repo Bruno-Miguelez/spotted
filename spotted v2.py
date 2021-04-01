@@ -3,6 +3,7 @@ programa: spotted_do_tt
 linguagem: python v3.8
 autor: @Bruno_Miguelez_
 versão: v2.0
+destaque: equipe de moderação
 '''
 import tweepy
 import time
