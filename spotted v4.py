@@ -2,7 +2,7 @@
 programa: spotted_v4
 linguagem: python v3.9
 autor: @Bruno_Miguelez_ , @allan
-versão: v3.4
+versão: v4.6
 destaque: midias no spotted
 '''
 import tweepy
