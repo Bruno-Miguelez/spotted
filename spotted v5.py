@@ -1,4 +1,4 @@
------------------------------
+#############################
 '''program info'''
 
 '''
@@ -6,14 +6,13 @@ programa: spotted_v5
 linguagem: python v3.9
 autores: Bruno Miguelez, Allan, Pedro Miguelez
 versão: v5.9
-
 destaques da versão 5: novas funções moderação- consulta citado automática, tw, confirmação apoio (msg autodepressiativas)
 especificidades do 5.9: formulario de contato(?ajuda), otimizações no ranking dos moderadores(criação de função para adicionar pontos), correção de bug ao exibir dados armazenados no banco de dados(&gt; &lt; > <)
 '''
------------------------------
+#############################
 
 
------------------------------
+#############################
 '''import section'''
 import tweepy
 import time
@@ -35,11 +34,11 @@ from twython import Twython, TwythonError
 import requests as req
 import mysql.connector
 import asyncio
------------------------------
+#############################
 
 
------------------------------
-'''configuration'''
+#############################
+'''variables'''
 BEARER = ""
 APP_KEY = ""
 APP_SECRET = ""
@@ -47,10 +46,10 @@ OAUTH_TOKEN = ""
 OAUTH_TOKEN_SECRET = ""
 
 DISCORD_TOKEN = ""
------------------------------
+#############################
 
 
------------------------------
+#############################
 '''spotted v5.9'''
 auth = tweepy.OAuthHandler(APP_KEY,APP_SECRET)
 auth.set_access_token(OAUTH_TOKEN,OAUTH_TOKEN_SECRET)
@@ -979,4 +978,4 @@ async def on_comand_error(ctx, error):
 
 keep_alive()
 client.run(DISCORD_TOKEN)
------------------------------
+#############################
