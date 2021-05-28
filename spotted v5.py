@@ -1,7 +1,7 @@
 '''
 programa: spotted_v5
 linguagem: python v3.9
-autor: @Bruno_Miguelez_ , @allan
+autor: @/Bruno_Miguelez_ , @/allan
 versão: v5.8
 destaque: funções - consulta citado automática, tw, confirmação apoio (msg sensiveis)
 '''
