@@ -77,8 +77,6 @@ cursor.execute("SELECT * FROM ranking")
 print(cursor.fetchall())
 
 
-print(timeinfo_sp)
-
 class classe:
   @client.event
   async def on_ready():
