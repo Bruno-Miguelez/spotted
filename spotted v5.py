@@ -1,3 +1,4 @@
+
 #############################
 '''program info'''
 
@@ -38,14 +39,50 @@ import asyncio
 
 
 #############################
-'''variables'''
+'''config'''
+
+#-->TOKENS
+#-twitter
 BEARER = ""
 APP_KEY = ""
 APP_SECRET = ""
 OAUTH_TOKEN = ""
 OAUTH_TOKEN_SECRET = ""
-
+#-discord
 DISCORD_TOKEN = ""
+
+
+#-->DISCORD
+#-canais
+test_channel_id =  #canal para testes
+desenvolvimento_channel_id =  #canal para comunicação de erros e status do bot
+aprovado_channel_id =  #log - pra onde vão os spotteds aprovados
+log_contato_channel_id =  #log - onde fica registrado os contatos da moderação com spotteds ou com formulários
+spotted_channel_id =  #onde chegam os spotteds
+CE_channel_id =  #onde chegam os correios elegantes
+discussão_channel_id =  #canal de discussão dos membros
+cemiterio_channel_id =  #log - onde ficam registrados spotteds cancelados
+ranking_channel_id =  #canal para ranking entre os moderadores
+CE_aprovado_channel_id =  #log - canal para onde cos correios elegantes aprovados vão
+contato_channel_id =  #onde chegam mensagens de contato (?ajuda)
+
+#-moderção
+mod_1_name = ""
+mod_2_name = ""
+mod_3_name = ""
+mod_4_name = ""
+mod_5_name = ""
+
+mod_1_id = 
+mod_2_id = 
+mod_3_id = 
+mod_4_id = 
+mod_5_id = 
+
+#-->TWITTER
+bot_id =  #id publico, pode ser encontrado na url da conta, só numeros
+
+db_name = ""
 #############################
 
 
@@ -61,27 +98,37 @@ except tweepy.RateLimitError as e:
   print(e.reason)
 client = discord.Client()
 twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-
-banco = sqlite3.connect('database.db')
-
+banco = sqlite3.connect('{}.db'.format(db_name))
 cursor = banco.cursor()
-
-cursor.execute("SELECT spotted FROM data")
-print(cursor.fetchall())
-
-cursor.execute("SELECT destinatario,ce,contagem FROM CE")
-print(cursor.fetchall())
-
-
-cursor.execute("SELECT * FROM ranking")
-print(cursor.fetchall())
 
 
 class classe:
   @client.event
   async def on_ready():
     timeinfo_sp = datetime.now().astimezone(timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')
-    desenvolvimento_channel = client.get_channel(794801047901831169)
+
+    global desenvolvimento_channel
+    desenvolvimento_channel = client.get_channel(int(desenvolvimento_channel_id))
+    global aprovado_channel
+    aprovado_channel = client.get_channel(int(aprovado_channel_id))
+    global log_contato_channel
+    log_contato_channel = client.get_channel(int(log_contato_channel_id))
+    global spotted_channel
+    spotted_channel = client.get_channel(int(spotted_channel_id))
+    global CE_channel
+    CE_channel = client.get_channel(int(CE_channel_id))
+    global discussão_channel
+    discussão_channel = client.get_channel(int(discussão_channel_id))
+    global cemiterio_channel
+    cemiterio_channel = client.get_channel(int(cemiterio_channel_id))
+    global ranking_channel
+    ranking_channel = client.get_channel(int(ranking_channel_id))
+    global CE_aprovado_channel
+    CE_aprovado_channel = client.get_channel(int(CE_aprovado_channel_id))
+    global contato_channel
+    contato_channel = client.get_channel(int(contato_channel_id))
+    
+    print(spotted_channel)
     print('We have logged in as {0.user}'.format(client))
     try:
       classe.atualização_spotted.start()
@@ -94,9 +141,6 @@ class classe:
   async def on_message(message):
     timeinfo_sp = datetime.now().astimezone(timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')
     msg = message.content
-    aprovado_channel = client.get_channel(815727445126152223)
-    desenvolvimento_channel = client.get_channel(794801047901831169)
-    log_contato_channel = client.get_channel(839324301752401960)
     if msg.startswith('s-') or msg.startswith('S-'):
       try:
         print(msg)
@@ -110,7 +154,6 @@ class classe:
         print(contagem)
         if comando[1] == "tw":
           print("gatilho")
-          #print(cursor.fetchall())
           cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
           for row in cursor:
             string_row = row[0]
@@ -122,7 +165,7 @@ class classe:
             print(row[0])
             content = row[0]
             api.update_status("tw // {}".format(comando[2]))
-            last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
+            last_tweet = api.user_timeline(id=bot_id,count=1)[0]
             res = api.update_status(string_row, in_reply_to_status_id=last_tweet.id, auto_populate_reply_metadata=True)
             api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
             await message.channel.send("o {} \n** foi aprovado** as {}".format(content, timeinfo_sp))
@@ -214,7 +257,7 @@ class classe:
         await desenvolvimento_channel.send("error: {}".format(er.args))
         await desenvolvimento_channel.send(content)
     elif message.author.bot == True:
-      if message.channel == client.get_channel(794467326660968459):
+      if message.channel == spotted_channel:
         if msg.startswith('spotted'):
           await message.add_reaction("❌")
           await message.add_reaction("🆔")
@@ -223,13 +266,13 @@ class classe:
           await message.add_reaction("⚠️")
           await message.add_reaction("✔️")
           
-      elif message.channel == client.get_channel(817212322967060521):
+      elif message.channel == CE_channel:
         if msg.startswith('[Para: @'):
           await message.add_reaction("🔴")
           #await message.add_reaction("🟡")
           await message.add_reaction("🟢")
 
-      elif message.channel == client.get_channel(794644643278487633):
+      elif message.channel == discussão_channel:
         if msg.startswith('spotted'):
           print("bot- foi pra discussão")
           await message.add_reaction("❌")
@@ -251,7 +294,7 @@ class classe:
       disc_message = await g_channel.fetch_message(payload.message_id)
       if payload.member.bot == True:
         return
-      elif payload.channel_id == 794751006503469076:
+      elif payload.channel_id == test_channel_id:
         print("teste")
         return
       else:
@@ -264,11 +307,6 @@ class classe:
         content = disc_message.content
         content = content.replace("&gt;", ">")
         content = content.replace("&lt;", "<")
-        cemiterio_channel = client.get_channel(795441819902410842)
-        discussão_channel = client.get_channel(794644643278487633)
-        desenvolvimento_channel = client.get_channel(794801047901831169)
-        ranking_channel = client.get_channel(804845726152654858)
-        aprovado_channel = client.get_channel(815727445126152223)
 
         message = await channel.fetch_message(payload.message_id)
         reaction = get(message.reactions, emoji=payload.emoji.name)
@@ -337,7 +375,7 @@ class classe:
                     time.sleep(0.01)
                     twitter.update_status(status=content, media_ids=[response['media_id']])
                 
-                last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
+                last_tweet = api.user_timeline(id=bot_id,count=1)[0]
                 cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
                 for row in cursor:
                   api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
@@ -363,7 +401,7 @@ class classe:
 
             else:
                 api.update_status(content)
-                last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
+                last_tweet = api.user_timeline(id=bot_id,count=1)[0]
                 cursor.execute("SELECT * FROM data WHERE spotted = ('" + content + "')")
                 for row in cursor:
                   api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
@@ -379,7 +417,7 @@ class classe:
               cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
               FMT= '%d/%m/%Y %H:%M'
               for row in cursor:
-                last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
+                last_tweet = api.user_timeline(id=bot_id,count=1)[0]
                 print(row[0])
                 print(row[4])
                 print(row[3])
@@ -397,7 +435,7 @@ class classe:
               cursor.execute("SELECT * FROM data WHERE spotted = ('" + content + "')")
               FMT= '%d/%m/%Y %H:%M'
               for row in cursor:
-                last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
+                last_tweet = api.user_timeline(id=bot_id,count=1)[0]
                 print(row[0])
                 print(row[4])
                 print(row[3])
@@ -519,7 +557,6 @@ class classe:
                   CE_conteudo = content.split("[Para: @", 1)[-1].split("]", 1)[-1].split(" ", 1)[-1]
                   dest_user = api.get_user(dest_name)
                   dest_id = dest_user.id
-                  CE_aprovado_channel = client.get_channel(818509891101917244)
                   if content.split("[Para: @", 1)[-1].split(" ", 1)[-1].split("]", -1)[0] == "(Em resposta)":
                     print("em resposta")
                     CE_resp = "[Em resposta: #{}] {}".format(row[4], CE_conteudo)
@@ -542,7 +579,6 @@ class classe:
                   CE_conteudo = content.split("[Para: @", 1)[-1].split("]", 1)[-1].split(" ", 1)[-1]
                   dest_user = api.get_user(dest_name)
                   dest_id = dest_user.id
-                  CE_aprovado_channel = client.get_channel(818509891101917244)
                   if content.split("[Para: @", 1)[-1].split(" ", 1)[-1].split("]", -1)[0] == "(Em resposta)":
                     print("em resposta")
                     CE_resp = "[Em resposta: #{}] {}".format(row[4], CE_conteudo)
@@ -616,14 +652,11 @@ class classe:
   async def atualização_spotted():
 
     messages = api.list_direct_messages()
-    desenvolvimento_channel = client.get_channel(794801047901831169)
-    cemiterio_channel = client.get_channel(795441819902410842)
-    contato_channel = client.get_channel(839143168678559765)
+    
 
     timeinfo_sp = datetime.now().astimezone(timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')
     for message in messages:
-      spotted_channel = client.get_channel(794467326660968459)
-      CE_channel = client.get_channel(817212322967060521)
+      
 
       text = message.message_create["message_data"]["text"]
       print(text)
@@ -646,8 +679,6 @@ class classe:
               print("citado")
               comando = text.split(" ", 1)
               contagem = comando[0].upper()
-              aprovado_channel = client.get_channel(815727445126152223)
-              cemiterio_channel = client.get_channel(795441819902410842)
               api.destroy_direct_message(message.id)
               try:
                 cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
@@ -663,7 +694,7 @@ class classe:
                     print(string_row)
                     if comando[1] == "posta" or comando[1] == "sim":
                       api.update_status(string_row)
-                      last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
+                      last_tweet = api.user_timeline(id=bot_id,count=1)[0]
                       api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
                       await aprovado_channel.send("**aprovado por citado** do envio do {}\nhttps://twitter.com/Spotted_do_tt/status/{}".format(spotted, last_tweet.id))
                       cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + string_row + "'")
@@ -680,7 +711,7 @@ class classe:
                       print(string_row)
                       content = string_row
                       api.update_status("tw // autodepreciação")
-                      last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
+                      last_tweet = api.user_timeline(id=bot_id,count=1)[0]
                       res = api.update_status(string_row, in_reply_to_status_id=last_tweet.id, auto_populate_reply_metadata=True)
                       api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
                       #await message.channel.send("o {} \n** foi aprovado (consulta)** as {}".format(content, timeinfo_sp))
@@ -885,8 +916,11 @@ class classe:
                 for i in aspas_simples:
                   text = text.replace(i, ' ')
                 spotted = f'spotted: {text}'
-                api.destroy_direct_message(message.id)
+                
+                print(spotted_channel)
+                
                 await spotted_channel.send(spotted)
+                api.destroy_direct_message(message.id)
                 cursor.execute("SELECT * FROM data ORDER BY contagem DESC LIMIT 1 ")
                 for row in cursor:
                   print(row[2])
@@ -931,35 +965,35 @@ class classe:
   #função assíncrona para adicionar ponto ao moderador que aprovou a postagem
   async def adicionar_ponto(moderador_id):
     aprovado_por = None
-    ranking_channel = client.get_channel(804845726152654858)
-    if moderador_id == 752377953152794736:  #Dora
-      print("aprovado por Dora")
+    if moderador_id == mod_1_id:  #Dora
+      print("aprovado por {}".format(mod_1_name))
       cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Dora'")
       banco.commit()
-      aprovado_por = "Dora"
+      aprovado_por = mod_1_name
 
-    elif moderador_id == 207678444052414466:  #Rick
-      print("aprovado por Rick")
+    elif moderador_id == mod_2_id:  #Rick
+      print("aprovado por {}".format(mod_2_name))
       cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Rick'")
       banco.commit()
-      aprovado_por = "Rick"
+      aprovado_por = mod_2_name
 
-    elif moderador_id == 710195991789305967:  #Bruno
-      print("aprovado por Bruno")
+    elif moderador_id == mod_3_id:  #Bruno
+      print("aprovado por {}".format(mod_3_name))
       cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Bruno'")
       banco.commit()
-      aprovado_por = "Bruno"
+      aprovado_por = mod_3_name
 
-    elif moderador_id == 715676769092501636:  #Kinker
-      print("aprovado por Kinker")
+    elif moderador_id == mod_4_id:  #Kinker
+      print("aprovado por {}".format(mod_4_name))
       cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Kinker'")
       banco.commit()
-      aprovado_por = "Kinker"
+      aprovado_por = mod_4_name
 
-    elif moderador_id == 323410392393056258:  #Isaac
+    elif moderador_id == mod_5_id:  #Isaac
+      print("aprovado por {}".format(mod_5_name))
       cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Isaac'")
       banco.commit()
-      aprovado_por = "Isaac"
+      aprovado_por = mod_5_name
 
     cursor.execute("SELECT * FROM ranking ORDER BY pontos DESC")
     primeiro = cursor.fetchone()
@@ -972,7 +1006,7 @@ class classe:
 @client.event
 async def on_comand_error(ctx, error):
   print(error)
-  await ctx.send(error)
+  await desenvolvimento_channel.send(error)
 
 keep_alive()
 client.run(DISCORD_TOKEN)
