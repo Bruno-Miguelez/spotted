@@ -1,11 +1,12 @@
 '''
 programa: spotted_v5
 linguagem: python v3.9
-autor: @/Bruno_Miguelez_ , @/allan
-versão: v5.8
-destaque: funções - consulta citado automática, tw, confirmação apoio (msg sensiveis)
-'''
+autores: Bruno Miguelez, Allan, Pedro Miguelez
+versão: v5.9
 
+destaques da versão 5: novas funções moderação- consulta citado automática, tw, confirmação apoio (msg autodepressiativas)
+especificidades do 5.9: formulario de contato(?ajuda), otimizações no ranking dos moderadores(criação de função para adicionar pontos), correção de bug ao exibir dados armazenados no banco de dados(&gt; &lt; > <)
+'''
 import tweepy
 import time
 import os
@@ -25,8 +26,10 @@ from requests_oauthlib import OAuth1
 from twython import Twython, TwythonError
 import requests as req
 import mysql.connector
+import asyncio
 
 
+BEARER = ""
 APP_KEY = ""
 APP_SECRET = ""
 OAUTH_TOKEN = ""
@@ -34,12 +37,9 @@ OAUTH_TOKEN_SECRET = ""
 
 DISCORD_TOKEN = ""
 
-
 auth = tweepy.OAuthHandler(APP_KEY,APP_SECRET)
 auth.set_access_token(OAUTH_TOKEN,OAUTH_TOKEN_SECRET)
 auth2 = OAuth1(APP_KEY,APP_SECRET,OAUTH_TOKEN,OAUTH_TOKEN_SECRET)
-timeinfo_sp = datetime.now().astimezone(timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')
-
 try:
   api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 except tweepy.RateLimitError as e:
@@ -84,23 +84,34 @@ class classe:
     msg = message.content
     aprovado_channel = client.get_channel(815727445126152223)
     desenvolvimento_channel = client.get_channel(794801047901831169)
+    log_contato_channel = client.get_channel(839324301752401960)
     if msg.startswith('s-') or msg.startswith('S-'):
       try:
         print(msg)
         comando = msg.split(" ", 2)
         print(comando)
         contagem = comando[0].upper()
+        cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
+        for row in cursor:
+          print(row[0])
+          content = row[0]
         print(contagem)
         if comando[1] == "tw":
           print("gatilho")
           #print(cursor.fetchall())
           cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
           for row in cursor:
+            string_row = row[0]
+            for i in "&gt;":
+              string_row = string_row.replace("&gt;", ">")
+            for i in "&lt;":
+              string_row = string_row.replace("&lt;", "<")
+
             print(row[0])
             content = row[0]
             api.update_status("tw // {}".format(comando[2]))
             last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
-            res = api.update_status(row[0], in_reply_to_status_id=last_tweet.id, auto_populate_reply_metadata=True)
+            res = api.update_status(string_row, in_reply_to_status_id=last_tweet.id, auto_populate_reply_metadata=True)
             api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
             await message.channel.send("o {} \n** foi aprovado** as {}".format(content, timeinfo_sp))
             await aprovado_channel.send("**aprovado** o envio do {}\nhttps://twitter.com/Spotted_do_tt/status/{}".format(content, last_tweet.id))
@@ -118,17 +129,36 @@ class classe:
             user_citado = api.get_user(comando[2])
             msg_citado = ""
             api.send_direct_message(user_citado.id,"MENSAGEM AUTOMATIZADA\n~consulta citado~\n\nEssa é uma mensagem de consulta automática, recebemos um spotted e achamos melhor você dar a palavra final.\n\n{}\n\nse achar suave postar digite:\n{} posta\ne o spotted será postado\n\nou se você se sente desconfortável e prefere que esse spotted não seja postado digite:\n{} nem\n\nqualquer dúvida entre em contato pelo discord https://discord.gg/R2uVD7pE7q".format(row[0],contagem,contagem))
+            api.send_direct_message(row[1],"MENSAGEM AUTOMATIZADA\n~processo spotted {}~\n\nseu {}\nentrou para consulta automática com citado citado (@{})\nele(a) poderá decidir pela postagem ou não do spotted, previnindo posts que deixem pessoas do nosso circulo social desconfortáveis ou expostas\n\nqualquer dúvida entre em contato digitando ?ajuda [sua msg] ou entre pelo discord https://discord.gg/R2uVD7pE7q".format(row[2],row[0],comando[2]))
             cursor.execute("UPDATE data SET citado=? WHERE contagem=?", (user_citado.id,contagem))
             banco.commit()
 
+            await message.delete()
+        elif comando[1] == "contato":
+          print("contato")
+          cursor.execute("SELECT * FROM contato ORDER BY ref DESC LIMIT 1 ")
+          for row in cursor:
+            contagem = row[2]
+            contagem = (int(re.sub('[^0-9]', '', contagem)) + 1)
+            contagem = f'C-{contagem}'
+
+          cursor.execute("SELECT * FROM data WHERE contagem = ('" + comando[0].upper() + "')")
+          for row in cursor:
+            await log_contato_channel.send("spotted: {}\nref: {}\n\nmensagem: {}\nautor: {}\nprotocolo de contato: {}".format(row[0], row[2], comando[2], message.author.name, contagem))
+            print(row[0])
+            api.send_direct_message(row[1],"MENSAGEM AUTOMATIZADA\n~Formulário de Contato~\n\nSpotted referido: {}\nRef: {}\n\nMensagem: {}\n\nQualquer dúvida entre em contato digitando ?ajuda [sua msg] aqui na dm ou pelo discord https://discord.gg/R2uVD7pE7q\n\nprotocolo de contato: {}".format(row[0], row[2], comando[2], contagem))
+            cursor.execute("INSERT INTO contato (msg, id, ref, resposta, time) values (?,?,?,?,?)",(comando[2], message.author.name, contagem, row[2], timeinfo_sp))
+            banco.commit()
             await message.delete()
         else:
           await message.channel.send("comando desconhecido")    
 
       except tweepy.TweepError as e:
-        print(e.reason)
-        await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, text))
-      
+        if e.reason == "[{'code': 187, 'message': 'Status is a duplicate.'}]":
+          print("publicação duplicada")
+        else:
+          print(e.reason)
+          await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, content))
       except tweepy.RateLimitError as e:
         await desenvolvimento_channel.send("erro tempo: tentando novamente em 1 minuto\n{}".format(e.reason))
         time.sleep(60)
@@ -136,9 +166,41 @@ class classe:
         print('SQLite error: %s' % (' '.join(er.args)))
         print(er)
         await desenvolvimento_channel.send("error: {}".format(er.args))
-        await desenvolvimento_channel.send(text)
-        api.send_direct_message(id, "erro: {}\n \nesse erro é bem incomum, ele ocorre ao armazenar o dado na database, verifique se não está usando caracteres especiais como ', ele ja deu problemas no passado.\nTente tira-lo de sua msg e envie novamente! Se o erro persistir entre em contato com o pessu de desenvolvimento no discord https://discord.gg/R2uVD7pE7q")
-
+        await desenvolvimento_channel.send(content)
+        #api.send_direct_message(id, "erro: {}\n \nesse erro é bem incomum, ele ocorre ao armazenar o dado na database, verifique se não está usando caracteres especiais como ', ele ja deu problemas no passado.\nTente tira-lo de sua msg e envie novamente! Se o erro persistir entre em contato com o pessu de desenvolvimento no discord https://discord.gg/R2uVD7pE7q")
+    elif msg.startswith('C-') or msg.startswith('c-'):
+      try:
+        cursor.execute("SELECT * FROM contato ORDER BY ref DESC LIMIT 1 ")
+        for row in cursor:
+          contagem = row[2]
+          contagem = (int(re.sub('[^0-9]', '', contagem)) + 1)
+          contagem = f'C-{contagem}'
+        comando = msg.split(" ", 1)
+        print(comando)
+        print("contato resposta")
+        cursor.execute("SELECT * FROM contato WHERE ref = ('" + comando[0].upper() + "')")
+        print("contato resposta")
+        for row in cursor:
+          print("contato resposta")
+          await log_contato_channel.send("contato: {}\nref: {}\ntime: {} \n\n\nresposta: {}\nref: {}\nautor: {}\ntime: {}".format(row[0], row[2], row[4], comando[1], contagem, message.author.name, timeinfo_sp))
+          api.send_direct_message(int(row[1]),"CONTATO\n~em resposta ao: {}~\n\nResposta:{}\nref: {}\nautor:{}".format(row[2], comando[1], contagem, message.author.name))
+          cursor.execute("INSERT INTO contato (msg, id, ref, resposta, time) values (?,?,?,?,?)",(comando[1], message.author.name, contagem, row[2], timeinfo_sp))
+          banco.commit()
+          await message.channel.send("enviado!\nmsg: {}\nref: {}".format(comando[1], contagem))
+      except tweepy.TweepError as e:
+        if e.reason == "[{'code': 187, 'message': 'Status is a duplicate.'}]":
+          print("publicação duplicada")
+        else:
+          print(e.reason)
+          await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, content))
+      except tweepy.RateLimitError as e:
+        await desenvolvimento_channel.send("erro tempo: tentando novamente em 1 minuto\n{}".format(e.reason))
+        time.sleep(60)
+      except sqlite3.Error as er:
+        print('SQLite error: %s' % (' '.join(er.args)))
+        print(er)
+        await desenvolvimento_channel.send("error: {}".format(er.args))
+        await desenvolvimento_channel.send(content)
     elif message.author.bot == True:
       if message.channel == client.get_channel(794467326660968459):
         if msg.startswith('spotted'):
@@ -188,6 +250,8 @@ class classe:
         moderador_name = payload.member.name
         moderador_id = payload.user_id
         content = disc_message.content
+        content = content.replace("&gt;", ">")
+        content = content.replace("&lt;", "<")
         cemiterio_channel = client.get_channel(795441819902410842)
         discussão_channel = client.get_channel(794644643278487633)
         desenvolvimento_channel = client.get_channel(794801047901831169)
@@ -203,14 +267,14 @@ class classe:
           print(content)
           await cemiterio_channel.send("spotted **cancelado** por {}, em {} \n {}".format(moderador_name, timeinfo_sp, content))
           await disc_message.edit(content="{} \n**cancelado** por {} em {}".format(content, moderador_name, timeinfo_sp))
-          privada_nagada = "MENSAGEM AUTOMÁTICA \n seu {} \n vai contra nossas diretrizes. O envio foi cancelado.\n Entre em contato pelo discord caso sinta a necessidade https://discord.gg/6waCUeA38B .".format(content)
-
+          privada_nagada = "MENSAGEM AUTOMATIZADA \nOptamos pela não publicação do seu {} \n\nQualquer dúvida entre em contato digitando ?ajuda [sua msg] aqui na dm ou pelo discord https://discord.gg/R2uVD7pE7q.".format(content)
           cursor.execute("SELECT * FROM data WHERE spotted = ('" + content + "')")
           for row in cursor:
             api.send_direct_message(row[1], privada_nagada)
 
           try:
             cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + content + "'")
+            cursor.execute("UPDATE data SET envio=? WHERE spotted=?", (timeinfo_sp,content))
             banco.commit()
           except sqlite3.Error as er:
             print('SQLite error: %s' % (' '.join(er.args)))
@@ -224,7 +288,6 @@ class classe:
 
             await disc_message.clear_reaction('✔️')
             await disc_message.clear_reactions()
-
             if disc_message.attachments:
               link = disc_message.attachments[0].filename
               contagem = link.replace(link[link.find('.'):], '')
@@ -246,21 +309,29 @@ class classe:
                         print('Waiting ' + wait + 's')
                         time.sleep(wait)
                     else:
+                      time.sleep(0.01)
                       twitter.update_status(status=content, media_ids=[response['media_id']])
                     
                 elif ponto == ".gif":
+                    time.sleep(0.01)
                     pic = api.media_upload(link)
+                    time.sleep(0.01)
                     api.update_status(status = content, media_ids = [pic.media_id_string] )
 
                 elif ponto == ".jpg":
                     photo = open(link, 'rb')
+                    time.sleep(0.01)
                     response = twitter.upload_media(media=photo)
+                    time.sleep(0.01)
                     twitter.update_status(status=content, media_ids=[response['media_id']])
                 
                 last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
                 cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
                 for row in cursor:
                   api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
+                  cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + content + "'")
+                  cursor.execute("UPDATE data SET envio=? WHERE spotted=?", (timeinfo_sp,content))
+                  banco.commit()
               except TwythonError as e:
                 await channel.send("erro: {}".format(e))
                 await desenvolvimento_channel.send("erro: {}".format(e))
@@ -269,7 +340,7 @@ class classe:
                 for row in cursor:
                   api.send_direct_message(row[1],"{} \n\nresultou no seguinte \nerror: {}".format(content, e.reason))
                 try:
-                  cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + content + "'")
+                  cursor.execute("UPDATE data SET id = 'None' WHERE contagem = ('" + contagem + "')")
                   cursor.execute("UPDATE data SET envio=? WHERE spotted=?", (timeinfo_sp,content))
                   #cursor.execute("INSERT INTO data (envio) values (?)",(timeinfo_sp,))
                   banco.commit()
@@ -308,7 +379,7 @@ class classe:
                   print("madruga")
                   if minutes > 60:
                     print("demorou pra aprovar")
-                    comment = 'AVISO DA MADRUGA\napesar de só ter sido postado agr, esse post foi escrito {}:{} da manhã'.format(chegada.hour, chegada.minute)
+                    comment = 'MADRUGA\napesar de postado agr, esse post foi escrito {}:{} da manhã'.format(chegada.hour, chegada.minute)
                     resp = api.update_status(comment, in_reply_to_status_id=last_tweet.id, auto_populate_reply_metadata=True)
             except:
               cursor.execute("SELECT * FROM data WHERE spotted = ('" + content + "')")
@@ -327,63 +398,16 @@ class classe:
                   print("madruga")
                   if minutes > 60:
                     print("demorou pra aprovar")
-                    comment = 'AVISO DA MADRUGA\napesar de só ter sido postado agr, esse post foi escrito {}:{} da manhã'.format(chegada.hour, chegada.minute)
+                    comment = 'MADRUGA\napesar de postado agr, esse post foi escrito {}:{} da manhã'.format(chegada.hour, chegada.minute)
                     resp = api.update_status(comment, in_reply_to_status_id=last_tweet.id, auto_populate_reply_metadata=True)
             
-            
-            
-            aprovado_por = ""
-            print(moderador_name)
-            cursor.execute("SELECT * FROM ranking")
-            print(cursor.fetchall())
-            if moderador_id == 752377953152794736:  #Dora
-              print("aprovado por Dora")
-              cursor.execute(
-                  "UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Dora'"
-              )
-              banco.commit()
+            await classe.adicionar_ponto(moderador_id)
 
-              aprovado_por = "Dora"
-
-            elif moderador_id == 207678444052414466:  #Rick
-              print("aprovado por Rick")
-              cursor.execute(
-                  "UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Rick'"
-              )
-              banco.commit()
-              aprovado_por = "Rick"
-
-            elif moderador_id == 710195991789305967:  #Bruno
-              print("aprovado por Bruno")
-              cursor.execute(
-                  "UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Bruno'"
-              )
-              banco.commit()
-              aprovado_por = "Bruno"
-
-            elif moderador_id == 715676769092501636:  #Kinker
-              print("aprovado por Kinker")
-              cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Kinker'")
-              banco.commit()
-              aprovado_por = "Kinker"
-
-            elif moderador_id == 323410392393056258:  #Isaac
-              print("aprovado por Isaac")
-              cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Isaac'")
-              banco.commit()
-              aprovado_por = "Isaac"
-
-            cursor.execute("SELECT * FROM ranking ORDER BY pontos DESC")
-            primeiro = cursor.fetchone()
-            segundo = cursor.fetchone()
-            terceiro = cursor.fetchone()
-            quarto = cursor.fetchone()
-            quinto = cursor.fetchone()
-            await ranking_channel.send("**RANKING OFICIAL**\naprovado por : {}\n🏆{}: {}\n🥈{}: {}\n🥉{}: {}\n🥴{}: {}\n🙅‍♂️🤮{}: {} eww gross\n---------------------".format(aprovado_por, primeiro[0], primeiro[1], segundo[0], segundo[1], terceiro[0], terceiro[1], quarto[0], quarto[1], quinto[0], quinto[1]))
-            
-            
             await aprovado_channel.send("**{} aprovou** o envio do {}\nhttps://twitter.com/Spotted_do_tt/status/{}".format(moderador_name, content, last_tweet.id))
-            await disc_message.edit(content="{} \n**aprovado** por {} em {}".format(content, moderador_name, timeinfo_sp))
+            try:
+              await disc_message.edit(content="{} \n**aprovado** por {} em {}".format(content, moderador_name, timeinfo_sp))
+            except:
+              print("falha ao editar")
             
           except sqlite3.Error as er:
             print('SQLite error: %s' % (' '.join(er.args)))
@@ -393,16 +417,26 @@ class classe:
         elif payload.emoji.name == '🗣️':
           await disc_message.clear_reactions()
           print("🗣️")
-          await discussão_channel.send("<@&794462660803821569>, {} acha melhor discutirmos esse spotted: \n \n votem quando chegarem num consenso"
-              .format(moderador_name))
-          await discussão_channel.send("{}".format(content))
-          
-          await disc_message.edit(content="{} \n convocada **reunião** por {} em {}".format(content, moderador_name, timeinfo_sp))
-          cursor.execute("SELECT * FROM data WHERE spotted = ('" + content + "')")
-          for row in cursor:
-            await discussão_channel.send("{}".format(row[2]))
-            privada_discussão = "MENSAGEM AUTOMÁTICA \n seu {} \n \nteve o processo de publicação pausado para discussão entre os os moderadores.\n Logo mais te avisaremos da decisão tomada por aqui. \n não responda essa mensagem".format(content)
-            api.send_direct_message(row[1], privada_discussão)
+          await discussão_channel.send("<@&794462660803821569>, {} acha melhor discutirmos esse spotted: \n \n votem quando chegarem num consenso".format(moderador_name))
+
+          if disc_message.attachments:
+            link = disc_message.attachments[0].filename
+            contagem = link.replace(link[link.find('.'):], '')
+            await discussão_channel.send(content, file=discord.File(link))
+            cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
+            for row in cursor:
+              await discussão_channel.send("{}".format(row[2]))
+              privada_discussão = "MENSAGEM AUTOMÁTICA \n seu {} \n \nteve o processo de publicação pausado para discussão entre os os moderadores.\n Logo mais te avisaremos da decisão tomada por aqui. \n não responda essa mensagem".format(content)
+              api.send_direct_message(row[1], privada_discussão)
+          else:
+            await discussão_channel.send(content)
+            cursor.execute("SELECT * FROM data WHERE spotted = ('" + content + "')")
+            for row in cursor:
+              await discussão_channel.send("{}".format(row[2]))
+              privada_discussão = "MENSAGEM AUTOMÁTICA \n seu {} \n \nteve o processo de publicação pausado para discussão entre os os moderadores.\n Logo mais te avisaremos da decisão tomada por aqui. \n não responda essa mensagem".format(content)
+              api.send_direct_message(row[1], privada_discussão)
+            
+            await disc_message.edit(content="{} \n convocada **reunião** por {} em {}".format(content, moderador_name, timeinfo_sp))
 
           print(content)
 
@@ -425,7 +459,7 @@ class classe:
             await disc_message.edit(content="{}\n\n {} colocou o spotteed pra confirmação com o remetente".format(content, moderador_name, row[2]))
             cursor.execute("UPDATE data SET citado = id WHERE spotted = ('" + content + "')")
             banco.commit()
-            confirmação = "Olá! Vimos sua mensagem e, antes de publica-lá, gostaríamos de te falar uma coisa.\nApesar de não termos como te ajudar diretamente, vale relembrar que pedir ajuda, apesar de difícil, é bastante importante. Seja conversando amigos, parentes, profissionais ou até no Disque 188 (Centro de valorização a vida www.cvv.org.br/quero-conversar ).\n\nEstamos junto com você!🙂\n\nse quiser seguir com o envio do spotted digite:\n{} sim".format(row[2])
+            confirmação = "Olá! Vimos sua mensagem e, antes de publica-lá, gostaríamos de te falar uma coisa.\nApesar de não termos como te ajudar diretamente, vale relembrar que pedir ajuda, apesar de difícil, é bastante importante. Seja conversando com amigos, parentes, profissionais ou no Disque 188 (Centro de valorização a vida www.cvv.org.br/quero-conversar ).\n\nEstamos junto com você!🙂\n\nse quiser seguir com o envio do {}\ndigite:\n{} publique".format(row[0], row[2])
             api.send_direct_message(row[1], confirmação)
 
 
@@ -512,61 +546,41 @@ class classe:
                     await disc_message.edit(content="{} \n**aprovado** por {} em {}".format(content, moderador_name, timeinfo_sp))
                     print(row[2])
 
-            aprovado_por = None
-
-            if moderador_id == 752377953152794736:  #Dora
-              print("aprovado por Dora")
-              cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Dora'")
-              banco.commit()
-
-              aprovado_por = "Dora"
-
-            elif moderador_id == 207678444052414466:  #Rick
-              print("aprovado por Rick")
-              cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Rick'")
-              banco.commit()
-              aprovado_por = "Rick"
-
-            elif moderador_id == 710195991789305967:  #Bruno
-              print("aprovado por Bruno")
-              cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Bruno'")
-              banco.commit()
-              aprovado_por = "Bruno"
-
-            elif moderador_id == 715676769092501636:  #Kinker
-              print("aprovado por Kinker")
-              cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Kinker'")
-              banco.commit()
-              aprovado_por = "Kinker"
-
-            elif moderador_id == 323410392393056258:  #Isaac
-              cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Isaac'")
-              banco.commit()
-              aprovado_por = "Isaac"
-            cursor.execute("SELECT * FROM ranking ORDER BY pontos DESC")
-            
-            primeiro = cursor.fetchone()
-            segundo = cursor.fetchone()
-            terceiro = cursor.fetchone()
-            quarto = cursor.fetchone()
-            quinto = cursor.fetchone()
-            await ranking_channel.send("**RANKING OFICIAL**\naprovado por : {}\n🏆{}: {}\n🥈{}: {}\n🥉{}: {}\n🥴{}: {}\n🙅‍♂️🤮{}: {} eww gross\n---------------------".format(aprovado_por, primeiro[0], primeiro[1], segundo[0], segundo[1], terceiro[0], terceiro[1], quarto[0], quarto[1], quinto[0], quinto[1]))
-                
+            await classe.adicionar_ponto(moderador_id)
+        
+        elif payload.emoji.name == '🗨️':
+          if disc_message.attachments:
+            link = disc_message.attachments[0].filename
+            contagem = link.replace(link[link.find('.'):], '')
+            cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
+            print(link)
+            for row in cursor:
+              print("ate aqui cheguei")
+              await g_channel.send("{}".format(row[2]))
+              print("ate aqui cheguei")
+          else:
+            cursor.execute("SELECT * FROM data WHERE spotted = ('" + content + "')")
+            for row in cursor:
+              
+              await g_channel.send("{}".format(row[2]))
 
     except tweepy.TweepError as e:
-      print(e.reason)
-      await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, content))
-      await g_channel.send("error:{} \n\nfoi o erro q deu no \n {}".format(e.reason, content))
-      cursor.execute("SELECT * FROM ce WHERE ce = ('" + content + "')")
-      for row in cursor:
-        api.send_direct_message(row[1],"{} \n\nresultou no seguinte \nerror: {}".format(content, e.reason))
-      try:
-        cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + content + "'")
-        banco.commit()
-      except sqlite3.Error as er:
-        print('SQLite error: %s' % (' '.join(er.args)))
-        print(er)
-        await desenvolvimento_channel.send("error: {}\n{}".format(er.args, content))
+      if e.reason == "[{'code': 187, 'message': 'Status is a duplicate.'}]":
+        print("publicação duplicada")
+      else:
+        print(e.reason)
+        await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, content))
+        await g_channel.send("error:{} \n\nfoi o erro q deu no \n {}".format(e.reason, content))
+        cursor.execute("SELECT * FROM ce WHERE ce = ('" + content + "')")
+        for row in cursor:
+          api.send_direct_message(row[1],"{} \n\nresultou no seguinte \nerror: {}".format(content, e.reason))
+        try:
+          cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + content + "'")
+          banco.commit()
+        except sqlite3.Error as er:
+          print('SQLite error: %s' % (' '.join(er.args)))
+          print(er)
+          await desenvolvimento_channel.send("error: {}\n{}".format(er.args, content))
     except tweepy.RateLimitError as e:
       print(e)
       print(e.reason)
@@ -592,21 +606,24 @@ class classe:
     messages = api.list_direct_messages()
     desenvolvimento_channel = client.get_channel(794801047901831169)
     cemiterio_channel = client.get_channel(795441819902410842)
+    contato_channel = client.get_channel(839143168678559765)
 
     timeinfo_sp = datetime.now().astimezone(timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')
-    
     for message in messages:
       spotted_channel = client.get_channel(794467326660968459)
       CE_channel = client.get_channel(817212322967060521)
 
       text = message.message_create["message_data"]["text"]
-      aspas_simples = "'"
-      for i in aspas_simples:
+      print(text)
+      for i in "'":
         text = text.replace(i, ' ')
+      for i in "&gt;":
+        text = text.replace("&gt;", ">")
+      for i in "&lt;":
+        text = text.replace("&lt;", "<")
       
       id = message.message_create["sender_id"]
       spotted = f'spotted: {text}'
-      print(text)
 
       if message.message_create["sender_id"] == "1291744051193171969":
         api.destroy_direct_message(message.id)
@@ -619,42 +636,68 @@ class classe:
               contagem = comando[0].upper()
               aprovado_channel = client.get_channel(815727445126152223)
               cemiterio_channel = client.get_channel(795441819902410842)
+              api.destroy_direct_message(message.id)
               try:
-                
                 cursor.execute("SELECT * FROM data WHERE contagem = ('" + contagem + "')")
                 for row in cursor:
+                  string_row = row[0]
+                  for i in "&gt;":
+                    string_row = string_row.replace("&gt;", ">")
+                  for i in "&lt;":
+                    string_row = string_row.replace("&lt;", "<")
                   print(id)
                   print(row[5])
                   if int(id) == int(row[5]):
-                    print(row[0])
+                    print(string_row)
                     if comando[1] == "posta" or comando[1] == "sim":
-                      api.update_status(row[0])
+                      api.update_status(string_row)
                       last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
                       api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
-                      await aprovado_channel.send("**aprovado por citado** do envio do {}\nhttps://twitter.com/Spotted_do_tt/status/{}".format(row[0], last_tweet.id))
-                      cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + row[0] + "'")
-                      cursor.execute("UPDATE data SET envio=? WHERE spotted=?", (timeinfo_sp,row[0]))
+                      await aprovado_channel.send("**aprovado por citado** do envio do {}\nhttps://twitter.com/Spotted_do_tt/status/{}".format(spotted, last_tweet.id))
+                      cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + string_row + "'")
+                      cursor.execute("UPDATE data SET envio=? WHERE spotted=?", (timeinfo_sp,string_row))
                       banco.commit()
                     elif comando[1] == "não" or comando[1] == "nem":
-                      await cemiterio_channel.send("spotted **cancelado** por {}, em {} \n {}".format(moderador_name, timeinfo_sp, content))
-                      cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + row[0] + "'")
+                      await cemiterio_channel.send("spotted **cancelado** por citado em {} \n {}".format(timeinfo_sp, content))
+                      cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + string_row + "'")
                       banco.commit()
                       api.send_direct_message(row[1], "spotted cancelado")
+                      api.destroy_direct_message(message.id)
+                    
+                    elif comando[1] == "publique" or comando[1] == "publica":
+                      print(string_row)
+                      content = string_row
+                      api.update_status("tw // autodepreciação")
+                      last_tweet = api.user_timeline(id=1291744051193171969,count=1)[0]
+                      res = api.update_status(string_row, in_reply_to_status_id=last_tweet.id, auto_populate_reply_metadata=True)
+                      api.send_direct_message(row[1],"https://twitter.com/Spotted_do_tt/status/{}".format(last_tweet.id))
+                      #await message.channel.send("o {} \n** foi aprovado (consulta)** as {}".format(content, timeinfo_sp))
+                      await aprovado_channel.send("**aprovado** o envio do {}\nhttps://twitter.com/Spotted_do_tt/status/{}".format(content, last_tweet.id))
+                      cursor.execute("UPDATE data SET id = 'None' WHERE spotted = '" + content + "'")
+                      cursor.execute("UPDATE data SET envio=? WHERE spotted=?", (timeinfo_sp,content))
+                      banco.commit()
+                      api.destroy_direct_message(message.id)
+
                   else:
                     print("código inválido")
                     await desenvolvimento_channel.send("erro: código inválido\n{}".format(text))
                     api.send_direct_message(id,"erro: código inválido\n{}".format(text))
-                api.destroy_direct_message(message.id)
+                    api.destroy_direct_message(message.id)
 
               except sqlite3.Error as er:
                 print('SQLite error: %s' % (' '.join(er.args)))
                 print(er)
                 await desenvolvimento_channel.send("db error: {}\n{}".format(er.args, text))
                 api.send_direct_message(id, "erro no banco de dados\n{}\n{}".format(er.args, text))
+                api.destroy_direct_message(message.id)
               except tweepy.TweepError as e:
-                print(e.reason)
-                await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, text))
-                api.send_direct_message(id, "tweepy error:\n{}\n{}".format(e.reason, text))
+                if e.reason == "[{'code': 187, 'message': 'Status is a duplicate.'}]":
+                  print("publicação duplicada")
+                else:
+                  print(e.reason)
+                  await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, text))
+                  api.send_direct_message(id, "tweepy error:\n{}\n{}".format(e.reason, text))
+                  api.destroy_direct_message(message.id)
               except tweepy.RateLimitError as e:
                 await desenvolvimento_channel.send("erro tempo: tentando novamente em 1 minuto\n{}".format(e.reason))
                 time.sleep(60)
@@ -693,6 +736,7 @@ class classe:
                       await desenvolvimento_channel.send("error: {}".format(er.args))
                       await desenvolvimento_channel.send(text)
                       api.send_direct_message(id, "erro: {}\n \nesse erro é bem incomum, ele ocorre ao armazenar o dado na database, verifique se não está usando caracteres especiais como ', ele ja deu problemas no passado.\nTente tira-lo de sua msg e envie novamente! Se o erro persistir entre em contato com o pessu de desenvolvimento no discord https://discord.gg/R2uVD7pE7q")
+                      api.destroy_direct_message(message.id)
                   elif text.startswith('?para #'):
                       print("responder")
                       CE_conteudo = text.split("?para ", 1)[-1].split(" ", 1)[-1]
@@ -701,6 +745,7 @@ class classe:
                       for row in cursor:
                         print(row[3])
                         print(id)
+                        #se eles forem iguais subistituir a linha abaixo por
                         verificação_msg = (api.get_user(row[3]).screen_name == api.get_user(id).screen_name)
                         print(verificação_msg)
                         print("destinatario:{}".format(row[3]))
@@ -716,11 +761,7 @@ class classe:
                           await cemiterio_channel.send("Correio Elegante {} cancelado automaticamente cancelado automaticamente, codigo invalido".format(CE_pra_moderacao))
                           api.send_direct_message(id, "MENSAGEM AUTOMÁTICA\nParece que o código inserido não é válido. Confira se o digitou corretamente e tente novamente\nCorreio Elegante referido: {}\n [erro: acesso negado]".format(CE_conteudo))
                           api.destroy_direct_message(message.id)
-                  elif text.startswith('?contato'):
-                    print("contato")
-                    api.send_direct_message(id, "Fale com as nossas equipes de desenvolvimento e de moderação pelo nosso discord! https://discord.gg/R2uVD7pE7q")
-                    api.destroy_direct_message(message.id)
-                  elif text.startswith('?help') or text.startswith('?help'):
+                  elif text.startswith('?help'):
                     print("help")
                     api.send_direct_message(id, "MENSAGEM AUTOMATICA - help \nPara enviar Correios Elegantes digite ?para @destinatario sua mensagem\n exemplo: ?para @Bruno_Miguelez_ vai tomar banho.\n\n Para responder um correio elegante o processo é parecido, mas ao inves do @DaPessoa você vai colocar a # com o codigo da sua mensagem! ex: ?para #123 sua resposta\n \nSe não tiver conseguindo lança uma dm ou cola no discord https://discord.gg/rHGZGE85eS")
                     api.destroy_direct_message(message.id)
@@ -731,6 +772,22 @@ class classe:
                   elif text.startswith('?para@') or text.startswith('?para#'):
                     print("?para@")
                     api.send_direct_message(id, "MENSAGEM AUTOMATICA - sintaxe incorreta \nParece que voce deixou de colocar um espaço entre o ?para e o @ ou #.\nPara enviar Correios Elegantes digite ?para @destinatario sua mensagem\n exemplo: ?para @Bruno_Miguelez_ vai tomar banho.\n\n Para responder um correio elegante o processo é parecido, mas ao inves do @DaPessoa você vai colocar a # com o codigo da sua mensagem! ex: ?para #123 sua resposta\n \nSe não tiver conseguindo lança uma dm ou cola no discord https://discord.gg/rHGZGE85eS")
+                    api.destroy_direct_message(message.id)
+                  elif text.startswith('?ajuda') or text.startswith('?contato'):
+                    cursor.execute("SELECT * FROM contato ORDER BY ref DESC LIMIT 1 ")
+                    for row in cursor:
+                      contagem = row[2]
+                      contagem = (int(re.sub('[^0-9]', '', contagem)) + 1)
+                      contagem = f'C-{contagem}'
+                    print("contato pelo ?ajuda ou ?contato")
+                    msg = message.message_create["message_data"]["text"]
+                    comando = msg.split(" ", 1)
+                    print("contato")
+                    cursor.execute("INSERT INTO contato (msg, id, ref, time) values (?,?,?,?)",(comando[1], str(id), contagem, timeinfo_sp))
+                    banco.commit()
+                    await contato_channel.send("MENSAGEM DE CONTATO\nref: {}\n\n{}".format(contagem, comando[1]))
+                    
+                    api.send_direct_message(id,"MENSAGEM AUTOMATIZADA\nRecebemos sua mensagem:\n{}\nresponderemos o mais rápido possivel.\n\nref: {}".format(comando[1], contagem))
                     api.destroy_direct_message(message.id)
                   else:
                     #comando incorreto
@@ -782,6 +839,7 @@ class classe:
                     arquivo = x + arquivo
                 text = text
                 text = text.partition('https')[0]
+                time.sleep(0.01)
                 media_content = req.get(link, auth=auth2)
                 print(media_content)
                 arquivo_ponto = ("{}.{}").format(contagem,arquivo)
@@ -798,7 +856,8 @@ class classe:
                   print('SQLite error: %s' % (' '.join(er.args)))
                   print(er)
                   await desenvolvimento_channel.send("error: {}".format(er.args))
-                
+                  api.send_direct_message(id, "erro no banco de dados\n{}\n{}".format(er.args, text))
+                  api.destroy_direct_message(message.id)
                 if ponto == ".gif":
                     clip = (VideoFileClip(arquivo_ponto))
                     clip.write_gif("{}.gif".format(contagem))
@@ -832,11 +891,17 @@ class classe:
                   print(er)
                   await desenvolvimento_channel.send(
                       "error: {}".format(er.args))
+                  api.send_direct_message(id, "erro no banco de dados\n{}\n{}".format(er.args, text))
+                  api.destroy_direct_message(message.id)
 
           except tweepy.TweepError as e:
-            print(e.reason)
-            await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, text))
-          
+            if e.reason == "[{'code': 187, 'message': 'Status is a duplicate.'}]":
+              print("publicação duplicada")
+            else:
+              print(e.reason)
+              await desenvolvimento_channel.send("error: {}\n{}".format(e.reason, text))
+              api.send_direct_message(id, "tweepy error: \n{}\n\nref:\n{}".format(e.reason, text))
+              api.destroy_direct_message(message.id)
           except tweepy.RateLimitError as e:
             await desenvolvimento_channel.send("erro tempo: tentando novamente em 1 minuto\n{}".format(e.reason))
             time.sleep(60)
@@ -846,10 +911,51 @@ class classe:
             await desenvolvimento_channel.send("error: {}".format(er.args))
             await desenvolvimento_channel.send(text)
             api.send_direct_message(id, "erro: {}\n \nesse erro é bem incomum, ele ocorre ao armazenar o dado na database, verifique se não está usando caracteres especiais como ', ele ja deu problemas no passado.\nTente tira-lo de sua msg e envie novamente! Se o erro persistir entre em contato com o pessu de desenvolvimento no discord https://discord.gg/R2uVD7pE7q")
-
+            api.destroy_direct_message(message.id)
     else:
       print("nada bro")
 
+
+  #função assíncrona para adicionar ponto ao moderador que aprovou a postagem
+  async def adicionar_ponto(moderador_id):
+    aprovado_por = None
+    ranking_channel = client.get_channel(804845726152654858)
+    if moderador_id == 752377953152794736:  #Dora
+      print("aprovado por Dora")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Dora'")
+      banco.commit()
+      aprovado_por = "Dora"
+
+    elif moderador_id == 207678444052414466:  #Rick
+      print("aprovado por Rick")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Rick'")
+      banco.commit()
+      aprovado_por = "Rick"
+
+    elif moderador_id == 710195991789305967:  #Bruno
+      print("aprovado por Bruno")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Bruno'")
+      banco.commit()
+      aprovado_por = "Bruno"
+
+    elif moderador_id == 715676769092501636:  #Kinker
+      print("aprovado por Kinker")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Kinker'")
+      banco.commit()
+      aprovado_por = "Kinker"
+
+    elif moderador_id == 323410392393056258:  #Isaac
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Isaac'")
+      banco.commit()
+      aprovado_por = "Isaac"
+
+    cursor.execute("SELECT * FROM ranking ORDER BY pontos DESC")
+    primeiro = cursor.fetchone()
+    segundo = cursor.fetchone()
+    terceiro = cursor.fetchone()
+    quarto = cursor.fetchone()
+    quinto = cursor.fetchone()
+    result = await ranking_channel.send("**RANKING OFICIAL**\naprovado por : {}\n🏆{}: {}\n🥈{}: {}\n🥉{}: {}\n🥴{}: {}\n🙅‍♂️🤮{}: {} eww gross\n---------------------".format(aprovado_por, primeiro[0], primeiro[1], segundo[0], segundo[1], terceiro[0], terceiro[1], quarto[0], quarto[1], quinto[0], quinto[1]))
 
 @client.event
 async def on_comand_error(ctx, error):
