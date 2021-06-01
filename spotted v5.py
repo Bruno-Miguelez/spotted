@@ -967,31 +967,31 @@ class classe:
     aprovado_por = None
     if moderador_id == mod_1_id:  #Dora
       print("aprovado por {}".format(mod_1_name))
-      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Dora'")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Mod1'")
       banco.commit()
       aprovado_por = mod_1_name
 
     elif moderador_id == mod_2_id:  #Rick
       print("aprovado por {}".format(mod_2_name))
-      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Rick'")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Mod2'")
       banco.commit()
       aprovado_por = mod_2_name
 
     elif moderador_id == mod_3_id:  #Bruno
       print("aprovado por {}".format(mod_3_name))
-      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Bruno'")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Mod3'")
       banco.commit()
       aprovado_por = mod_3_name
 
     elif moderador_id == mod_4_id:  #Kinker
       print("aprovado por {}".format(mod_4_name))
-      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Kinker'")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Mod4'")
       banco.commit()
       aprovado_por = mod_4_name
 
     elif moderador_id == mod_5_id:  #Isaac
       print("aprovado por {}".format(mod_5_name))
-      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Isaac'")
+      cursor.execute("UPDATE ranking SET pontos = pontos + 1 WHERE moderador = 'Mod5'")
       banco.commit()
       aprovado_por = mod_5_name
 
