@@ -1,6 +1,5 @@
 
 ### CÓDIGO SPOTTED COMENTADO V2.1
-```
 '''
 programa: spotted v2
 linguagem: python v3.8
@@ -140,4 +139,3 @@ async def atualização_spotted():
 client.run(os.getenv('token'))
 
 #FECHOU O CODIGO, FML
-```
