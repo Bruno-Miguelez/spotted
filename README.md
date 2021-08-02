@@ -16,22 +16,18 @@
 
 ### USO E RECURSOS
 PARA SPOTTEDS:
-    -Texto simples: é só digitar a sua mensagem na dm do bot, não precisa de prefixo, não precisa de comando. O próprio bot adiciona o "spotted: " no começo da mensagem.
-    
-    -RTs: copie o link da publicação que vc quer dar rt e cole do final da sua mensagem
-    
-    -Mídias: só enviar para DM, sem segredos, sem complicações. O twitter ainda te deixa adicionar uma mensagem junto com o arquivo de mídia, o código irá interpretar isso e fazer a publicação do texto com o arquivo anexado.
+    - Texto simples: é só digitar a sua mensagem na dm do bot, não precisa de prefixo, não precisa de comando. O próprio bot adiciona o "spotted: " no começo da mensagem.
+    - RTs: copie o link da publicação que vc quer dar rt e cole do final da sua mensagem
+    - Mídias: só enviar para DM, sem segredos, sem complicações. O twitter ainda te deixa adicionar uma mensagem junto com o arquivo de mídia, o código irá interpretar isso e fazer a publicação do texto com o arquivo anexado.
     
 PARA CORREIOS ELEGANTES
 Você pode enviar mensagens anonimas para alguém!
-    -para enviar um correio elegante começe sua mensagem com '?para' seguindo marcando o user da pessoa para quem se destina a mensagem e em seguencia a mensagem (ex: '?para @fulano_de_tal salve meu chapa'.
-    
-    -para responder um correio elegante 
-    
+    - para enviar um correio elegante começe sua mensagem com '?para' seguindo marcando o user da pessoa para quem se destina a mensagem e em seguencia a mensagem (ex: '?para @fulano_de_tal salve meu chapa'.
+    - para responder um correio elegante 
     Todas e qualquer mesagens passarão pelo processo de aprovação pela equipe de moderação, caso a equipe considere necessário saber a quem se destina a mensagem, eles terão esse recurso disponivel. Caso seja usado, o remetente será então notificado.
     
 ### PROGRESSO
-     progresso spotted 
+progresso spotted
 
 done
  criação de diretrizes e regras
