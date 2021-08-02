@@ -30,31 +30,31 @@ Você pode enviar mensagens anonimas para alguém!
 progresso spotted
 
 done
- criação de diretrizes e regras
- equipe de moderação
- otimização no script - tempo de envio/bugs no envio
- colocar o script na nuvem | mais estabilidade
- moderação cancelar o envio de uma mensagem antes de ser publicado
- envio de do link dos spotteds pro remetente
- melhorar estética do ranking para moderadores
- armazenar os ids ao invés dos users nos spotteds
- conversão pra gifs
- não armazenar o user e sim o id nos correios elegantes
- checagem automática com o citado
- marcar tempo até aprovação
- aviso da madruga
- alerta gatilho
- confirmação de posts sensíveis
- criar um ?help para contato anonimo
- formulário de cancelamento
- transforma automaticamente texto que ultrapassa os limites de caracteres postar como imagem
+- [x] criação de diretrizes e regras
+- [x] equipe de moderação
+- [x] otimização no script - tempo de envio/bugs no envio
+- [x] colocar o script na nuvem | mais estabilidade
+- [x] moderação cancelar o envio de uma mensagem antes de ser publicado
+- [x] envio de do link dos spotteds pro remetente
+- [x] melhorar estética do ranking para moderadores
+- [x] armazenar os ids ao invés dos users nos spotteds
+- [x] conversão pra gifs
+- [x] não armazenar o user e sim o id nos correios elegantes
+- [x] checagem automática com o citado
+- [x] marcar tempo até aprovação
+- [x] aviso da madruga
+- [x] alerta gatilho
+- [x] confirmação de posts sensíveis
+- [x] criar um ?help para contato anonimo
+- [x] formulário de cancelamento
+- [x] transforma automaticamente texto que ultrapassa os limites de caracteres postar como imagem
 
 
 in progress
- passar a database pro mysql
- stream de mensagens diretas
- imagens, videos e gifs junto com a mensagem (falta nos Correios Elegantes)
- enquetes no spotted (não da rs)
+- [ ] passar a database pro mysql
+- [ ] stream de mensagens diretas
+- [ ] imagens, videos e gifs junto com a mensagem (falta nos Correios Elegantes)
+- [ ] ~~enquetes no spotted~~ (não da rs)
     
     
 ### TWITTER
