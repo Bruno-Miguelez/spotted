@@ -22,8 +22,41 @@ PARA SPOTTEDS:
     
 PARA CORREIOS ELEGANTES
 Você pode enviar mensagens anonimas para alguém!
-    -
+    -para enviar um correio elegante começe sua mensagem com '?para' seguindo marcando o user da pessoa para quem se destina a mensagem e em seguencia a mensagem (ex: '?para @fulano_de_tal salve meu chapa'.
+    -para responder um correio elegante 
+    Todas e qualquer mesagens passarão pelo processo de aprovação pela equipe de moderação, caso a equipe considere necessário saber a quem se destina a mensagem, eles terão esse recurso disponivel. Caso seja usado, o remetente será então notificado.
+    
 ### PROGRESSO
+     progresso spotted 
+
+done
+ criação de diretrizes e regras
+ equipe de moderação
+ otimização no script - tempo de envio/bugs no envio
+ colocar o script na nuvem | mais estabilidade
+ moderação cancelar o envio de uma mensagem antes de ser publicado
+ envio de do link dos spotteds pro remetente
+ melhorar estética do ranking para moderadores
+ armazenar os ids ao invés dos users nos spotteds
+ conversão pra gifs
+ não armazenar o user e sim o id nos correios elegantes
+ checagem automática com o citado
+ marcar tempo até aprovação
+ aviso da madruga
+ alerta gatilho
+ confirmação de posts sensíveis
+ criar um ?help para contato anonimo
+ formulário de cancelamento
+ transforma automaticamente texto que ultrapassa os limites de caracteres postar como imagem
+
+
+in progress
+ passar a database pro mysql
+ stream de mensagens diretas
+ imagens, videos e gifs junto com a mensagem (falta nos Correios Elegantes)
+ enquetes no spotted (não da rs)
+    
+    
 ### TWITTER
 Postagens que descumpram as diretrizes do twitter não serão publicadas no spotted. https://help.twitter.com/pt/rules-and-policies/twitter-rules
 
