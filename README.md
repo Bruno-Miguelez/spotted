@@ -20,7 +20,8 @@ PARA SPOTTEDS:
 - RTs: copie o link da publicação que vc quer dar rt e cole do final da sua mensagem
 - Mídias: só enviar para DM, sem segredos, sem complicações. O twitter ainda te deixa adicionar uma mensagem junto com o arquivo de mídia, o código irá interpretar isso e fazer a publicação do texto com o arquivo anexado.
     
-PARA CORREIOS ELEGANTES
+PARA CORREIOS ELEGANTES:
+
 Você pode enviar mensagens anonimas para alguém!
 - para enviar um correio elegante começe sua mensagem com '?para' seguindo marcando o user da pessoa para quem se destina a mensagem e em seguencia a mensagem (ex: '?para @fulano_de_tal salve meu chapa'.
 - para responder um correio elegante 
