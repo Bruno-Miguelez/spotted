@@ -88,7 +88,7 @@ systemd-python==234
 toml==0.10.2
 tqdm==4.59.0
 tweepy==3.10.0
-Twisted==18.9.0
+Twisted==22.2.0
 twitter==1.18.0
 twython==3.8.2
 typing-extensions==3.7.4.3
